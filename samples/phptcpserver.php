@@ -60,6 +60,10 @@ while (true) {
             echo $data;
         }
     }
+
+    foreach ($tmp_writes as $write) {
+        var_dump($write);
+    }
 }
 
 socket_close($server_sock);
