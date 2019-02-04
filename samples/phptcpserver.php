@@ -30,6 +30,7 @@ $write_socks = [];
 $except_socks = null;
 
 $read_socks[] = $server_sock;
+$data = null;
 
 while (true) {
     // 这两个数组会被改变, 所以用两个临时变量
@@ -56,8 +57,11 @@ while (true) {
         } else {
             socket_getpeername($read, $ip, $port);
             $data = socket_read($read, 8192);
-            echo "receive data from: $ip:$port" . PHP_EOL;
-            echo $data;
+
+            if ($data !== '') {
+                echo "receive data from: $ip:$port" . PHP_EOL;
+                echo $data;
+            }
         }
     }
 
