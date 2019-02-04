@@ -29,12 +29,6 @@ $read_socks = [];
 $write_socks = [];
 $except_socks = null;
 
-$client_ip = null;
-$client_sock = null;
-
-$recv_ip = null;
-$recv_sock = null;
-
 $read_socks[] = $server_sock;
 
 while (true) {
@@ -56,67 +50,14 @@ while (true) {
                 // 把新的连接 socket 加入监听
                 $read_socks[] = $conn_sock;
                 $write_socks[] = $conn_sock;
+            } else {
+                echo "client connect failed!" . PHP_EOL;
             }
         } else {
             socket_getpeername($read, $ip, $port);
-            if (($byte = socket_read($read, 1)) == '1') {
-                $client_sock = $read;
-                $client_ip = $ip;
-            } else {
-                $recv_ip = $ip;
-                $recv_sock = $read;
-            }
-
-            // 客户端传输数据
-            $data = $byte == '1'
-                ? socket_read($read, 8192)
-                : $byte . socket_read($read, 8191); // todo 读取完整数据进行传输
+            $data = socket_read($read, 8192);
             echo "receive data from: $ip:$port" . PHP_EOL;
             echo $data;
-
-            if ($data != '') {
-                if ($ip != $client_ip) {
-                    // 外网请求了
-                    socket_write($read, $data);
-                } else {
-                    // 内网返回了
-                    socket_write($read, $data);
-                }
-            }
-
-//          移除对该 socket 监听
-            foreach ($tmp_reads as $key => $val) {
-                if ($val == $read) unset($tmp_reads[$key]);
-            }
-
-            foreach ($tmp_writes as $key => $val) {
-                if ($val == $read) unset($tmp_writes[$key]);
-            }
-            socket_close($read);
-
-//            if ($data === '') {
-//                // 移除对该 socket 监听
-//                foreach ($read_socks as $key => $val) {
-//                    if ($val == $read) unset($read_socks[$key]);
-//                }
-//
-//                foreach ($write_socks as $key => $val) {
-//                    if ($val == $read) unset($write_socks[$key]);
-//                }
-//
-//                socket_close($read);
-//                echo "client close" . PHP_EOL;
-//            } else {
-//                socket_getpeername($read, $ip, $port);
-//                echo "read from client # $ip:$port # " . $data;
-//
-//                $data = strtoupper($data);
-//
-//                if (in_array($read, $tmp_writes)) {
-//                    // 如果该客户端可写 把数据回写给客户端
-//                    socket_write($read, $data);
-//                }
-//            }
         }
     }
 }

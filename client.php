@@ -22,7 +22,7 @@ $port = 8888;
 $sock = createClientSocket($ip, $port);
 
 // 第一个字节作为标志位
-socket_write($sock, '1', 1);
+//socket_write($sock, '1', 1);
 
 // 接收到外网请求
 while ($buf = socket_read($sock, 8192)) {
@@ -34,7 +34,7 @@ while ($buf = socket_read($sock, 8192)) {
     while ($out = socket_read($proxySock, 8192)) {
         echo $out;
 
-        socket_write($sock,  '1' . $out, strlen($out));
+        socket_write($sock,  '1a' . $out, strlen($out));
         socket_close($proxySock);
         break;
     }
