@@ -29,6 +29,8 @@ $read_socks = [];
 $write_socks = [];
 $except_socks = null;
 
+$client_sock = null;
+
 $read_socks[] = $server_sock;
 $data = null;
 
@@ -51,6 +53,12 @@ while (true) {
                 // 把新的连接 socket 加入监听
                 $read_socks[] = $conn_sock;
                 $write_socks[] = $conn_sock;
+
+                if (socket_read($conn_sock, 1) == '1') {
+                    echo 'local net ...' . PHP_EOL;
+                } else {
+                    echo 'external connection ...' . PHP_EOL;
+                }
             } else {
                 echo "client connect failed!" . PHP_EOL;
             }
