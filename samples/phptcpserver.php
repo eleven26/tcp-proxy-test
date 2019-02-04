@@ -72,15 +72,25 @@ while (true) {
             echo "receive data from: $ip:$port" . PHP_EOL;
             echo $data;
 
-            if ($client_sock && $data != '') {
+            if ($data != '') {
                 if ($ip != $client_ip) {
                     // 外网请求了
-                    socket_write($client_sock, $data);
+                    socket_write($read, $data);
                 } else {
                     // 内网返回了
-                    socket_write($recv_sock, $data);
+                    socket_write($read, $data);
                 }
             }
+
+//          移除对该 socket 监听
+            foreach ($read_socks as $key => $val) {
+                if ($val == $read) unset($read_socks[$key]);
+            }
+
+            foreach ($write_socks as $key => $val) {
+                if ($val == $read) unset($write_socks[$key]);
+            }
+            socket_close($read);
 
 //            if ($data === '') {
 //                // 移除对该 socket 监听
