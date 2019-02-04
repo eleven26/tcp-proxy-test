@@ -22,7 +22,7 @@ if (!socket_listen($server_sock, 128)) { // 允许多少客户端来排队连接
     exit(-1);
 }
 
-socket_set_nonblock($server_sock);
+//socket_set_nonblock($server_sock);
 
 // 要监听的三个 sockets 数组
 $read_socks = [];
@@ -53,7 +53,7 @@ while (true) {
             // 有新的客户端连接请求
             $conn_sock = socket_accept($server_sock); // 响应客户端连接, 此时不会造成阻塞
             if ($conn_sock) {
-                socket_set_nonblock($conn_sock);
+//                socket_set_nonblock($conn_sock);
                 socket_getpeername($conn_sock, $ip, $port);
                 echo "client connect server: ip = $ip, port=$port" . PHP_EOL;
 
@@ -79,13 +79,24 @@ while (true) {
                 echo "receive data from: $ip:$port" . PHP_EOL;
                 echo $data;
 
-
                 if ($read == $local_sock) {
                     $from_local = $to_external = $data;
                 }
                 if ($read == $external_sock) {
                     $from_external = $to_local = $data;
                 }
+
+                // 移除对该 socket 监听
+                foreach ($read_socks as $key => $val) {
+                    if ($val == $read) unset($read_socks[$key]);
+                }
+
+                foreach ($write_socks as $key => $val) {
+                    if ($val == $read) unset($write_socks[$key]);
+                }
+
+                socket_close($read);
+                echo "client close" . PHP_EOL;
             }
         }
     }
