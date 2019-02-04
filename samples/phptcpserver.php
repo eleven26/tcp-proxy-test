@@ -46,6 +46,10 @@ while (true) {
 //                socket_set_nonblock($conn_sock);
                 socket_getpeername($conn_sock, $ip, $port);
                 echo "client connect server: ip = $ip, port=$port" . PHP_EOL;
+
+                // 把新的连接 socket 加入监听
+                $read_socks[] = $conn_sock;
+                $write_socks[] = $conn_sock;
             } else {
                 echo "client connect failed!" . PHP_EOL;
             }
@@ -57,9 +61,9 @@ while (true) {
         }
     }
 
-//    foreach ($tmp_writes as $write) {
-//        var_dump($write);
-//    }
+    foreach ($tmp_writes as $write) {
+        var_dump($write);
+    }
 }
 
 socket_close($server_sock);
