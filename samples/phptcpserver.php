@@ -38,8 +38,6 @@ while (true) {
 
     $count = socket_select($tmp_reads, $tmp_writes, $except_socks, null);
 
-    if (!$count) continue;
-
     foreach ($tmp_reads as $read) {
         if ($read == $server_sock) {
             // 有新的客户端连接请求
