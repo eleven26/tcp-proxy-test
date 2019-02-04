@@ -61,12 +61,10 @@ while (true) {
                 $read_socks[] = $conn_sock;
                 $write_socks[] = $conn_sock;
 
-                if (socket_read($conn_sock, 1) == '1') {
+                if (!$local_sock) {
                     $local_sock = $conn_sock;
-                    echo 'local net ...' . PHP_EOL;
                 } else {
                     $external_sock = $conn_sock;
-                    echo 'external connection ...' . PHP_EOL;
                 }
             } else {
                 echo "client connect failed!" . PHP_EOL;
