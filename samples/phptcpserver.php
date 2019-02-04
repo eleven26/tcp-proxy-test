@@ -106,7 +106,6 @@ while (true) {
         if ($write == $external_sock && $to_external != '') {
             socket_write($write, $to_external);
         }
-        echo 1 . PHP_EOL;
     }
 }
 

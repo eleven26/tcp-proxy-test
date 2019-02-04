@@ -34,7 +34,7 @@ while ($buf = socket_read($sock, 8192)) {
     while ($out = socket_read($proxySock, 8192)) {
         echo $out;
 
-        socket_write($sock,  '1a' . $out, strlen($out));
+        socket_write($sock,  $out, strlen($out));
         socket_close($proxySock);
         break;
     }
