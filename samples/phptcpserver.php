@@ -53,7 +53,7 @@ while (true) {
             // 有新的客户端连接请求
             $conn_sock = socket_accept($server_sock); // 响应客户端连接, 此时不会造成阻塞
             if ($conn_sock) {
-//                socket_set_nonblock($conn_sock);
+                socket_set_nonblock($conn_sock);
                 socket_getpeername($conn_sock, $ip, $port);
                 echo "client connect server: ip = $ip, port=$port" . PHP_EOL;
 
