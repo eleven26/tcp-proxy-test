@@ -33,10 +33,7 @@ $local_sock = null;
 $external_sock = null;
 
 $to_local = '';
-$from_local = '';
-
 $to_external = '';
-$from_external = '';
 
 $read_socks[] = $server_sock;
 $data = null;
@@ -78,10 +75,10 @@ while (true) {
                 echo $data;
 
                 if ($read == $local_sock) {
-                    $from_local = $to_external = $data;
+                    $to_external = $data;
                 }
                 if ($read == $external_sock) {
-                    $from_external = $to_local = $data;
+                    $to_local = $data;
                 }
 
                 // 移除对该 socket 监听
@@ -105,8 +102,8 @@ while (true) {
             $to_local = '';
         }
         if ($write == $external_sock && $to_external != '') {
-            $to_external = '';
             socket_write($write, $to_external);
+            $to_external = '';
         }
     }
 }
