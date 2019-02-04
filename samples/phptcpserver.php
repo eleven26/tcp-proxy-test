@@ -22,6 +22,8 @@ if (!socket_listen($server_sock, 128)) { // 允许多少客户端来排队连接
     exit(-1);
 }
 
+socket_set_nonblock($server_sock);
+
 // 要监听的三个 sockets 数组
 $read_socks = [];
 $write_socks = [];
