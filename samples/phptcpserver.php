@@ -55,37 +55,24 @@ while (true) {
                 $read_socks[] = $conn_sock;
                 $write_socks[] = $conn_sock;
             }
-
-            // 内网连接
-            if (socket_read($conn_sock, 1) == '1') {
-                $client_sock = $conn_sock;
+        } else {
+            socket_getpeername($read, $ip, $port);
+            if (($byte = socket_read($read, 1)) == '1') {
+                $client_sock = $read;
                 $client_ip = $ip;
             } else {
                 $recv_ip = $ip;
-                $recv_sock = $conn_sock;
+                $recv_sock = $read;
             }
-        } else {
+
             // 客户端传输数据
-            $data = socket_read($read, 8192); // todo 读取完整数据进行传输
-            if ($data === '') {
-                // 移除对该 socket 监听
-                foreach ($read_socks as $key => $val) {
-                    if ($val == $read) unset($read_socks[$key]);
-                }
-
-                foreach ($write_socks as $key => $val) {
-                    if ($val == $read) unset($write_socks[$key]);
-                }
-
-                socket_close($read);
-                echo "client close" . PHP_EOL;
-            }
-
-            socket_getpeername($read, $ip, $port);
+            $data = $byte == '1'
+                ? socket_read($read, 8192)
+                : $byte . socket_read($read, 8191); // todo 读取完整数据进行传输
             echo "receive data from: $ip:$port" . PHP_EOL;
             echo $data;
 
-            if ($client_sock) {
+            if ($client_sock && $data != '') {
                 if ($ip != $client_ip) {
                     // 外网请求了
                     socket_write($client_sock, $data);
