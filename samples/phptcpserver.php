@@ -22,8 +22,6 @@ if (!socket_listen($server_sock, 128)) { // 允许多少客户端来排队连接
     exit(-1);
 }
 
-socket_set_nonblock($server_sock);
-
 // 要监听的三个 sockets 数组
 $read_socks = [];
 $write_socks = [];
@@ -33,23 +31,20 @@ $read_socks[] = $server_sock;
 
 while (true) {
     // 这两个数组会被改变, 所以用两个临时变量
-    $tmp_reads = $read_socks;
-    $tmp_writes = $write_socks;
+    $tmp_reads = [];
+    $tmp_writes = [];
 
     $count = socket_select($tmp_reads, $tmp_writes, $except_socks, null);
+
+    if (!$count) continue;
 
     foreach ($tmp_reads as $read) {
         if ($read == $server_sock) {
             // 有新的客户端连接请求
             $conn_sock = socket_accept($server_sock); // 响应客户端连接, 此时不会造成阻塞
             if ($conn_sock) {
-                socket_set_nonblock($conn_sock);
                 socket_getpeername($conn_sock, $ip, $port);
                 echo "client connect server: ip = $ip, port=$port" . PHP_EOL;
-
-                // 把新的连接 socket 加入监听
-                $read_socks[] = $conn_sock;
-                $write_socks[] = $conn_sock;
             } else {
                 echo "client connect failed!" . PHP_EOL;
             }
