@@ -102,8 +102,10 @@ while (true) {
     foreach ($tmp_writes as $write) {
         if ($write == $local_sock && $to_local != '') {
             socket_write($write, $to_local);
+            $to_local = '';
         }
         if ($write == $external_sock && $to_external != '') {
+            $to_external = '';
             socket_write($write, $to_external);
         }
     }
