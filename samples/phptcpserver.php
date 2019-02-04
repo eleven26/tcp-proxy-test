@@ -85,12 +85,12 @@ while (true) {
             }
 
 //          移除对该 socket 监听
-            foreach ($read_socks as $key => $val) {
-                if ($val == $read) unset($read_socks[$key]);
+            foreach ($tmp_reads as $key => $val) {
+                if ($val == $read) unset($tmp_reads[$key]);
             }
 
-            foreach ($write_socks as $key => $val) {
-                if ($val == $read) unset($write_socks[$key]);
+            foreach ($tmp_writes as $key => $val) {
+                if ($val == $read) unset($tmp_writes[$key]);
             }
             socket_close($read);
 
