@@ -31,8 +31,8 @@ $read_socks[] = $server_sock;
 
 while (true) {
     // 这两个数组会被改变, 所以用两个临时变量
-    $tmp_reads = [];
-    $tmp_writes = [];
+    $tmp_reads = $read_socks;
+    $tmp_writes = $write_socks;
 
     $count = socket_select($tmp_reads, $tmp_writes, $except_socks, null);
 
