@@ -10,7 +10,7 @@ if ($server_sock === false) {
 }
 
 // 绑定 ip 地址及端口
-if (!socket_bind($server_sock, '127.0.0.1', 8888)) {
+if (!socket_bind($server_sock, '0.0.0.0', 8888)) {
     $error_code = socket_last_error();
     fwrite(STDERR, "socket bind fail: " . socket_strerror($error_code));
     exit(-1);
