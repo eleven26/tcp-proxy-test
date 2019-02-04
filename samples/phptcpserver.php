@@ -29,7 +29,14 @@ $read_socks = [];
 $write_socks = [];
 $except_socks = null;
 
-$client_sock = null;
+$local_sock = null;
+$external_sock = null;
+
+$to_local = '';
+$from_local = '';
+
+$to_external = '';
+$from_external = '';
 
 $read_socks[] = $server_sock;
 $data = null;
@@ -55,8 +62,10 @@ while (true) {
                 $write_socks[] = $conn_sock;
 
                 if (socket_read($conn_sock, 1) == '1') {
+                    $local_sock = $conn_sock;
                     echo 'local net ...' . PHP_EOL;
                 } else {
+                    $external_sock = $conn_sock;
                     echo 'external connection ...' . PHP_EOL;
                 }
             } else {
@@ -69,13 +78,26 @@ while (true) {
             if ($data !== '') {
                 echo "receive data from: $ip:$port" . PHP_EOL;
                 echo $data;
+
+
+                if ($read == $local_sock) {
+                    $from_local = $to_external = $data;
+                }
+                if ($read == $external_sock) {
+                    $from_external = $to_local = $data;
+                }
             }
         }
     }
 
-//    foreach ($tmp_writes as $write) {
-//        var_dump($write);
-//    }
+    foreach ($tmp_writes as $write) {
+        if ($write == $local_sock && $to_local != '') {
+            socket_write($write, $to_local);
+        }
+        if ($write == $external_sock && $to_external != '') {
+            socket_write($write, $to_external);
+        }
+    }
 }
 
 socket_close($server_sock);
