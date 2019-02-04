@@ -28,6 +28,12 @@ $read_socks = [];
 $write_socks = [];
 $except_socks = null;
 
+$client_ip = null;
+$client_sock = null;
+
+$recv_ip = null;
+$recv_sock = null;
+
 $read_socks[] = $server_sock;
 
 while (true) {
@@ -49,9 +55,29 @@ while (true) {
                 $read_socks[] = $conn_sock;
                 $write_socks[] = $conn_sock;
             }
+
+            // 内网连接
+            if (socket_read($conn_sock, 1) == '1') {
+                $client_sock = $conn_sock;
+                $client_ip = $ip;
+            } else {
+                $recv_ip = $ip;
+                $recv_sock = $conn_sock;
+            }
         } else {
+            socket_getpeername($read, $ip, $port);
             // 客户端传输数据
-            $data = socket_read($read, 1024);
+            $data = socket_read($read, 1024); // todo 读取完整数据进行传输
+            if ($client_sock) {
+                if ($ip != $client_ip) {
+                    // 外网请求了
+                    socket_write($client_sock, $data, strlen($data));
+                } else {
+                    // 内网返回了
+                    socket_write($recv_sock, $data, strlen($data));
+                }
+            }
+
             if ($data === '') {
                 // 移除对该 socket 监听
                 foreach ($read_socks as $key => $val) {
