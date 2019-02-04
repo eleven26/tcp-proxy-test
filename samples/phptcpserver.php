@@ -90,7 +90,7 @@ while (true) {
                     if ($val == $read) unset($write_socks[$key]);
                 }
 
-//                socket_close($read);
+                socket_close($read);
                 echo "client close" . PHP_EOL;
             }
         }
