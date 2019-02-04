@@ -66,15 +66,19 @@ while (true) {
             }
         } else {
             socket_getpeername($read, $ip, $port);
+            echo "receive data from: $ip:$port" . PHP_EOL;
+
             // 客户端传输数据
             $data = socket_read($read, 8192); // todo 读取完整数据进行传输
+            echo $data;
+
             if ($client_sock) {
                 if ($ip != $client_ip) {
                     // 外网请求了
-                    socket_write($client_sock, $data, strlen($data));
+                    socket_write($client_sock, $data);
                 } else {
                     // 内网返回了
-                    socket_write($recv_sock, $data, strlen($data));
+                    socket_write($recv_sock, $data);
                 }
             }
 
