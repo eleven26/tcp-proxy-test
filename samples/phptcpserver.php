@@ -98,13 +98,13 @@ while (true) {
 
     foreach ($tmp_writes as $write) {
         if ($write == $local_sock && $to_local != '') {
-            echo "write to local -----------\n";
+            echo ((int) $local_sock) . "write to local -----------\n";
             socket_write($write, $to_local);
             $to_local = '';
             echo "write to local ----------- end\n";
         }
         if ($write == $external_sock && $to_external != '') {
-            echo "write to external -----------\n";
+            echo ((int) $external_sock) . "write to external -----------\n";
             socket_write($write, $to_external);
             echo "write to external ----------- end\n";
             $to_external = '';
