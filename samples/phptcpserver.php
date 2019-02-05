@@ -100,7 +100,7 @@ while (true) {
         if ($write == $local_sock && $to_local != '') {
             echo "write to local -----------\n";
             socket_write($write, $to_local);
-//            $to_local = '';
+            $to_local = '';
             echo "write to local ----------- end\n";
         }
         if ($write == $external_sock && $to_external != '') {
@@ -108,6 +108,18 @@ while (true) {
             socket_write($write, $to_external);
             echo "write to external ----------- end\n";
             $to_external = '';
+
+
+            // 移除对该 socket 监听
+            foreach ($read_socks as $key => $val) {
+                if ($val == $external_sock) unset($read_socks[$key]);
+            }
+
+            foreach ($write_socks as $key => $val) {
+                if ($val == $external_sock) unset($write_socks[$key]);
+            }
+
+            socket_close($external_sock);
         }
     }
 }
