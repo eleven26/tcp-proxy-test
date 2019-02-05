@@ -63,18 +63,44 @@ while (true) {
                 if (!$local_sock) {
                     echo 'local connected!' . PHP_EOL;
                     $local_sock = $conn_sock;
-                } else if (!$external_sock) {
+                } else {
+                    if ($external_sock) {
+                        $unwatch_sock = $external_sock;
+
+                        foreach ($read_socks as $key => $val) {
+                            if ($val == $external_sock){
+                                unset($read_socks[$key]);
+                            }
+                        }
+
+                        foreach ($write_socks as $key => $val) {
+                            if ($val == $external_sock){
+                                unset($write_socks[$key]);
+                            }
+                        }
+                    }
+
+                    echo 'external connected!' . PHP_EOL;
                     $external_sock = $conn_sock;
                 }
             } else {
                 echo "client connect failed!" . PHP_EOL;
             }
         } else {
-//            if ($unwatch_sock == $read) {
-//                socket_close($read);
-//                echo "client close" . PHP_EOL;
-//                continue;
-//            }
+            if ($unwatch_sock == $read) {
+                // 移除对该 socket 监听
+                foreach ($read_socks as $key => $val) {
+                    if ($val == $read) unset($read_socks[$key]);
+                }
+
+                foreach ($write_socks as $key => $val) {
+                    if ($val == $read) unset($write_socks[$key]);
+                }
+
+                socket_close($read);
+                echo "client close" . PHP_EOL;
+                continue;
+            }
 
             $res = socket_getpeername($read, $ip, $port);
             if ($res === false) {
@@ -121,6 +147,21 @@ while (true) {
     }
 
     foreach ($tmp_writes as $write) {
+        if ($unwatch_sock == $read) {
+            // 移除对该 socket 监听
+            foreach ($read_socks as $key => $val) {
+                if ($val == $read) unset($read_socks[$key]);
+            }
+
+            foreach ($write_socks as $key => $val) {
+                if ($val == $read) unset($write_socks[$key]);
+            }
+
+            socket_close($read);
+            echo "client close" . PHP_EOL;
+            continue;
+        }
+
         if ($write == $local_sock && $to_local != '') {
             echo ((int) $local_sock) . "write to local -----------\n";
             socket_write($write, $to_local);
