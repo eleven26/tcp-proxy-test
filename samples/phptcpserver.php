@@ -93,7 +93,21 @@ while (true) {
                 continue;
             }
 
-            socket_getpeername($read, $ip, $port);
+            $res = socket_getpeername($read, $ip, $port);
+            if ($res === false) {
+                // 移除对该 socket 监听
+                foreach ($read_socks as $key => $val) {
+                    if ($val == $read) unset($read_socks[$key]);
+                }
+
+                foreach ($write_socks as $key => $val) {
+                    if ($val == $read) unset($write_socks[$key]);
+                }
+
+                socket_close($read);
+                echo "client close" . PHP_EOL;
+            }
+
             $data = socket_read($read, 8192);
 
             if ($data !== '') {
