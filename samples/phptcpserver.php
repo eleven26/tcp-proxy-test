@@ -106,6 +106,7 @@ while (true) {
 
                 socket_close($read);
                 echo "client close" . PHP_EOL;
+                continue;
             }
 
             $data = socket_read($read, 8192);
