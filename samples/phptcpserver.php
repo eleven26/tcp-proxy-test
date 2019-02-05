@@ -100,7 +100,7 @@ while (true) {
         if ($write == $local_sock && $to_local != '') {
             echo "write to local -----------\n";
             socket_write($write, $to_local);
-            $to_local = '';
+//            $to_local = '';
             echo "write to local ----------- end\n";
         }
         if ($write == $external_sock && $to_external != '') {
