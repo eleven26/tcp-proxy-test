@@ -80,7 +80,7 @@ while (true) {
                 if ($read == $external_sock) {
                     $to_local = $data;
                 }
-
+            } else {
                 // 移除对该 socket 监听
                 foreach ($read_socks as $key => $val) {
                     if ($val == $read) unset($read_socks[$key]);
