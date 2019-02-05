@@ -62,6 +62,20 @@ while (true) {
                     echo 'local connected!' . PHP_EOL;
                     $local_sock = $conn_sock;
                 } else {
+                    if ($external_sock) {
+                        foreach ($read_socks as $key => $val) {
+                            if ($val == $external_sock){
+                                unset($read_socks[$key]);
+                            }
+                        }
+
+                        foreach ($write_socks as $key => $val) {
+                            if ($val == $external_sock){
+                                unset($write_socks[$key]);
+                            }
+                        }
+                    }
+
                     echo 'external connected!' . PHP_EOL;
                     $external_sock = $conn_sock;
                 }
