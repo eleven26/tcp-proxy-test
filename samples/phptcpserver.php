@@ -68,10 +68,20 @@ while (true) {
                                 unset($read_socks[$key]);
                             }
                         }
+                        foreach ($tmp_reads as $key => $val) {
+                            if ($val == $external_sock){
+                                unset($read_socks[$key]);
+                            }
+                        }
 
                         foreach ($write_socks as $key => $val) {
                             if ($val == $external_sock){
                                 unset($write_socks[$key]);
+                            }
+                        }
+                        foreach ($tmp_writes as $key => $val) {
+                            if ($val == $external_sock){
+                                unset($read_socks[$key]);
                             }
                         }
                     }
