@@ -59,8 +59,10 @@ while (true) {
                 $write_socks[] = $conn_sock;
 
                 if (!$local_sock) {
+                    echo 'local connected!' . PHP_EOL;
                     $local_sock = $conn_sock;
                 } else {
+                    echo 'external connected!' . PHP_EOL;
                     $external_sock = $conn_sock;
                 }
             } else {
