@@ -50,7 +50,7 @@ while (true) {
             // 有新的客户端连接请求
             $conn_sock = socket_accept($server_sock); // 响应客户端连接, 此时不会造成阻塞
             if ($conn_sock) {
-                socket_set_nonblock($conn_sock);
+//                socket_set_nonblock($conn_sock);
                 socket_getpeername($conn_sock, $ip, $port);
                 echo "client connect server: ip = $ip, port=$port" . PHP_EOL;
 
@@ -80,7 +80,7 @@ while (true) {
                 if ($read == $external_sock) {
                     $to_local = $data;
                 }
-            } else {
+            } else if ($data === false) {
                 // 移除对该 socket 监听
                 foreach ($read_socks as $key => $val) {
                     if ($val == $read) unset($read_socks[$key]);
@@ -98,11 +98,15 @@ while (true) {
 
     foreach ($tmp_writes as $write) {
         if ($write == $local_sock && $to_local != '') {
+            echo "write to local -----------\n";
             socket_write($write, $to_local);
             $to_local = '';
+            echo "write to local ----------- end\n";
         }
         if ($write == $external_sock && $to_external != '') {
+            echo "write to external -----------\n";
             socket_write($write, $to_external);
+            echo "write to external ----------- end\n";
             $to_external = '';
         }
     }
