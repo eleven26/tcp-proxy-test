@@ -38,6 +38,8 @@ $to_external = '';
 $read_socks[] = $server_sock;
 $data = null;
 
+$unwatch_sock = null;
+
 while (true) {
     // 这两个数组会被改变, 所以用两个临时变量
     $tmp_reads = $read_socks;
@@ -63,12 +65,9 @@ while (true) {
                     $local_sock = $conn_sock;
                 } else {
                     if ($external_sock) {
+                        $unwatch_sock = $external_sock;
+
                         foreach ($read_socks as $key => $val) {
-                            if ($val == $external_sock){
-                                unset($read_socks[$key]);
-                            }
-                        }
-                        foreach ($tmp_reads as $key => $val) {
                             if ($val == $external_sock){
                                 unset($read_socks[$key]);
                             }
@@ -77,11 +76,6 @@ while (true) {
                         foreach ($write_socks as $key => $val) {
                             if ($val == $external_sock){
                                 unset($write_socks[$key]);
-                            }
-                        }
-                        foreach ($tmp_writes as $key => $val) {
-                            if ($val == $external_sock){
-                                unset($read_socks[$key]);
                             }
                         }
                     }
@@ -93,6 +87,12 @@ while (true) {
                 echo "client connect failed!" . PHP_EOL;
             }
         } else {
+            if ($unwatch_sock == $read) {
+                socket_close($read);
+                echo "client close" . PHP_EOL;
+                continue;
+            }
+
             socket_getpeername($read, $ip, $port);
             $data = socket_read($read, 8192);
 
