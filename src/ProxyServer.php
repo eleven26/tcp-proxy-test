@@ -6,6 +6,9 @@ class ProxyServer
 {
     use ProxyProtocol;
 
+    /**
+     * @var resource 代理服务器 socket
+     */
     private $serverSock;
 
     /**
@@ -13,12 +16,42 @@ class ProxyServer
      */
     private $localSock;
 
+    /**
+     * 需要转发给内网的数据
+     * 格式：
+     * [
+     *      '<socket resource id>' => '<socket resource id><data(外网请求报文)>'
+     * ]
+     *
+     * @var array
+     */
     private $toLocals = [];
 
+    /**
+     * 需要转发给外网的数据
+     * 格式：
+     * [
+     *      '<socket resource id>' => '<socket resource id><data(内网返回结果)>'
+     * ]
+     *
+     * @var array
+     */
     private $toExternals = [];
 
+    /**
+     * 代理服务器与外网浏览器 socket 连接
+     * 格式：
+     * [
+     *      '<socket resource id>' => '<socket resource>'
+     * ]
+     *
+     * @var array
+     */
     private $externalSocks = [];
 
+    /**
+     * ProxyServer constructor.
+     */
     public function __construct()
     {
         $this->boot();
@@ -26,6 +59,8 @@ class ProxyServer
 
     /**
      * 初始化代理 socket 连接
+     *
+     * @return void
      */
     private function boot()
     {

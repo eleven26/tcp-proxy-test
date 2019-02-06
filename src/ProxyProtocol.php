@@ -12,18 +12,33 @@ trait ProxyProtocol
      */
     private $bytesLength = 1000;
 
+    /**
+     * @var array socket_select socket to read
+     */
     private $readSocks = [];
 
+    /**
+     * @var array socket_select socket to write
+     */
     private $writeSocks = [];
 
+    /**
+     * @var null socket_select exceptions.
+     */
     private $except = null;
 
+    /**
+     * 根据自定义报文获取关联的 resource id
+     *
+     * @param string $data 报文字符串
+     * @return int
+     */
     private function getResourceId(&$data)
     {
         $identify = substr($data, 0, $this->identityLength);
         $data = substr($data, $this->identityLength);
 
-        return $this->intStringToSockResource($identify);
+        return bindec($identify);
     }
 
     /**
@@ -35,26 +50,22 @@ trait ProxyProtocol
     private function sockResourceToIntString($sock)
     {
         $binary = base_convert((int) $sock, 10, 2);
+
         return str_pad($binary, $this->identityLength, '0', STR_PAD_LEFT);
     }
 
     /**
-     * 标志位转换回十进制整数
+     * socket_select wrapper.
      *
-     * @param string $binary
-     * @return float|int
+     * @param array $reads
+     * @param array $writes
+     * @return int
      */
-    private function intStringToSockResource($binary)
+    protected function select(&$reads, &$writes)
     {
-        return bindec($binary);
-    }
-
-    protected function select(&$read, &$write)
-    {
-        $res = socket_select($read, $write, $this->except, null);
+        $res = socket_select($reads, $writes, $this->except, null);
         if (false === $res) {
-            echo "socket_select() failed, reason: " .
-                socket_strerror(socket_last_error()) . "\n";
+            echo "socket_select() failed, reason: " . socket_strerror(socket_last_error()) . PHP_EOL;
             exit(-1);
         }
 
