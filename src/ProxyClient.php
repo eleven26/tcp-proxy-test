@@ -69,7 +69,7 @@ class ProxyClient
                     $id = $this->getResourceId($data);
 
                     // 创建到内网 http 服务的 socket 连接
-                    $proxySock = createClientSocket('127.0.0.1', 8005);
+                    $proxySock = $this->createClientSocket('127.0.0.1', 8005);
                     $this->readSocks[(int) $proxySock] = $proxySock;
                     $this->writeSocks[(int) $proxySock] = $proxySock;
 
