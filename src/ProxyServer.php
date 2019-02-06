@@ -1,19 +1,17 @@
 <?php
 
+require __DIR__ . '/ProxyProtocol.php';
+
 class ProxyServer
 {
+    use ProxyProtocol;
+
     private $serverSock;
 
     /**
      * @var resource 到内网的 socket 连接，只有一个
      */
     private $localSock;
-
-    private $readSocks = [];
-
-    private $writeSocks = [];
-
-    private $except = null;
 
     private $toLocals = [];
 
@@ -89,7 +87,7 @@ class ProxyServer
                 // 读取到数据的几种情况
                 // 1. 外网请求，需要转发到内网
                 // 2. 内网返回，需要返回给外网
-                $data = socket_read($read, 8192);
+                $data = socket_read($read, $this->bytesLength + $this->identityLength);
 
                 if ($data !== '') {
                     echo "receive data from: $ip:$port" . PHP_EOL;
@@ -113,19 +111,11 @@ class ProxyServer
         }
     }
 
-    private function getResourceId(&$data)
-    {
-        $identify = substr($data, 0, 32);
-        $data = substr($data, 32);
-
-        return $this->intStringToSockResource($identify);
-    }
-
     private function removeExternalSock($sock)
     {
-        socket_close($sock);
         echo "client close: "  . ((int) $sock) . PHP_EOL;
         unset($this->externalSocks[(int) $sock]);
+        socket_close($sock);
     }
 
     private function newConnection($read)
@@ -176,41 +166,6 @@ class ProxyServer
         if ($res === false) {
             echo "error: " . socket_strerror(socket_last_error()) . PHP_EOL;
         }
-    }
-
-    /**
-     * 标志位（socket resource 转整型后再转二进制，使用4个字节保存，填充前导0）
-     *
-     * @param resource $sock
-     * @return string
-     */
-    private function sockResourceToIntString($sock)
-    {
-        $binary = base_convert((int) $sock, 10, 2);
-        return str_pad($binary, 32, '0', STR_PAD_LEFT);
-    }
-
-    /**
-     * 标志位转换回十进制整数
-     *
-     * @param string $binary
-     * @return float|int
-     */
-    private function intStringToSockResource($binary)
-    {
-        return bindec($binary);
-    }
-
-    protected function select(&$read, &$write)
-    {
-        $res = socket_select($read, $write, $this->except, null);
-        if (false === $res) {
-            echo "socket_select() failed, reason: " .
-                socket_strerror(socket_last_error()) . "\n";
-            exit(-1);
-        }
-
-        return $res;
     }
 
     public function __destruct()
