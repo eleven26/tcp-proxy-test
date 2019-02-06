@@ -80,6 +80,7 @@ class ProxyServer
             } else {
                 $res = socket_getpeername($read, $ip, $port);
                 if ($res === false) {
+                    echo "getpeername fails." . PHP_EOL;
                     $this->removeExternalSock($read);
                     continue;
                 }

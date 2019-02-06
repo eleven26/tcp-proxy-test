@@ -133,7 +133,8 @@ class ProxyClient
     public function createClientSocket($serverIp, $port)
     {
         $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-        socket_connect($socket, $serverIp, $port);
+        $socket or die('create socket fails.' . PHP_EOL);
+        socket_connect($socket, $serverIp, $port) or die('connect fails.' . PHP_EOL);
 
         $this->clientSocket = $socket;
 
@@ -143,3 +144,5 @@ class ProxyClient
         return $socket;
     }
 }
+
+(new ProxyClient())->handle();
