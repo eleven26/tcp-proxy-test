@@ -20,7 +20,7 @@ class ProxyServer
      * 需要转发给内网的数据
      * 格式：
      * [
-     *      '<socket resource id>' => '<socket resource id><data(外网请求报文)>'
+     *      '<socket resource id string>' => '<socket resource id><data(外网请求报文)>'
      * ]
      *
      * @var array
@@ -31,7 +31,7 @@ class ProxyServer
      * 需要转发给外网的数据
      * 格式：
      * [
-     *      '<socket resource id>' => '<socket resource id><data(内网返回结果)>'
+     *      '<socket resource id string>' => '<socket resource id><data(内网返回结果)>'
      * ]
      *
      * @var array
@@ -130,16 +130,18 @@ class ProxyServer
                     echo $data;
 
                     if ($read == $this->localSock) {
+                        // e.g. 00000000 00000000 00000011
                         $id = $this->getResourceId($data);
                         // 内网返回
                         $this->toExternals[$id] .= $data;
                     } else {
+                        // e.g. 00000000 00000000 00000011
                         $id = $this->sockResourceToIntString($read);
                         // 外网请求
                         if (!array_key_exists($id, $this->toLocals)) {
                             $this->toLocals[$id] = '';
                         }
-                        $this->toLocals[(int) $read] .= $id . $data;
+                        $this->toLocals[$id] .= $id . $data;
                     }
                 } else if ($data === false) {
                     echo "socket_read() failed, reason: " .
@@ -184,21 +186,23 @@ class ProxyServer
     protected function handleWrite($writes)
     {
         foreach ($writes as $write) {
-            if (isset($this->toLocals[(int) $write]) && !empty($this->toLocals[(int) $write])) {
+            $id = $this->sockResourceToIntString($write);
+
+            if (isset($this->toLocals[$id]) && !empty($this->toLocals[$id])) {
                 echo "writing to local...\n";
                 // 外网请求需要转发到内网
-                $data = substr($this->toLocals[(int) $write], 0, $this->bytesLength + $this->identityLength);
+                $data = substr($this->toLocals[$id], 0, $this->bytesLength + $this->identityLength);
                 $res = socket_write($this->localSock, $data, strlen($data));
-                $this->toLocals[(int) $write] = substr($this->toLocals[(int) $write], strlen($data));
+                $this->toLocals[$id] = substr($this->toLocals[$id], strlen($data));
                 $this->onResult($res);
             }
 
-            if (isset($this->toExternals[(int) $write]) && !empty($this->toExternals[(int) $write])) {
+            if (isset($this->toExternals[$id]) && !empty($this->toExternals[$id])) {
                 echo "writing to external...\n";
                 // 内网返回需要返回给外网
-                $res = socket_write($this->externalSocks[(int) $write], $this->toExternals[(int) $write]);
+                $res = socket_write($this->externalSocks[$id], $this->toExternals[$id]);
                 $this->onResult($res);
-                unset($this->toExternals[(int) $write]);
+                unset($this->toExternals[$id]);
             }
         }
     }

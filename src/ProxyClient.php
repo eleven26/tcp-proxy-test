@@ -110,10 +110,10 @@ class ProxyClient
                     $this->requestTunnels[(int) $proxySock] = $proxySock;
                     $this->proxyTunnels[(int) $proxySock] = $id;
                     // 外网请求
-                    if (!isset($this->toLocals[(int) $proxySock])) {
-                        $this->toLocals[(int) $proxySock] = '';
+                    if (!isset($this->toLocals[$id])) {
+                        $this->toLocals[$id] = '';
                     }
-                    $this->toLocals[(int) $proxySock] .= $data;
+                    $this->toLocals[$id] .= $data;
                 } else {
                     // 内网返回
                     $id = $this->sockResourceToIntString($this->proxyTunnels[(int) $read]);
@@ -138,20 +138,22 @@ class ProxyClient
     protected function handleWrite($writes)
     {
         foreach ($writes as $write) {
-            if (isset($this->toLocals[(int) $write]) && !empty($this->toLocals[(int) $write])) {
+            $id = $this->sockResourceToIntString($write);
+
+            if (isset($this->toLocals[$id]) && !empty($this->toLocals[$id])) {
                 // 外网请求需要转发到内网
-                $res = socket_write($this->requestTunnels[(int) $write], $this->toLocals[(int) $write]);
+                $res = socket_write($this->requestTunnels[$id], $this->toLocals[$id]);
                 $this->onResult($res);
-                unset($this->toLocals[(int) $write]);
+                unset($this->toLocals[$id]);
             }
 
-            if (isset($this->toExternals[(int) $write]) && !empty($this->toExternals[(int) $write])) {
+            if (isset($this->toExternals[$id]) && !empty($this->toExternals[$id])) {
                 // 内网返回需要返回给外网
-                $data = substr($this->toExternals[(int) $write], 0, $this->bytesLength + $this->identityLength);
+                $data = substr($this->toExternals[$id], 0, $this->bytesLength + $this->identityLength);
                 $res = socket_write($this->clientSocket, $data);
-                $this->toExternals[(int) $write] = substr($this->toExternals[(int) $write], strlen($data));
+                $this->toExternals[$id] = substr($this->toExternals[$id], strlen($data));
                 $this->onResult($res);
-                unset($this->toExternals[(int) $write]);
+                unset($this->toExternals[$id]);
             }
         }
     }
