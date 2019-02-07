@@ -134,6 +134,9 @@ class ProxyServer
                         $id = $this->getResourceId($data);
                         // 内网返回
                         $this->toExternals[$id] .= $data;
+                        echo "return from local\n";
+                        echo $data;
+                        echo $id . PHP_EOL;
                     } else {
                         // e.g. 00000000 00000000 00000011
                         $id = $this->sockResourceToIntString($read);

@@ -95,7 +95,7 @@ class ProxyClient
             }
 
             if ($data !== '') {
-                echo "receive data from: $ip:$port" . PHP_EOL;
+//                echo "receive data from: $ip:$port" . PHP_EOL;
                 echo $data;
 
                 if ($ip != '127.0.0.1') {
@@ -123,9 +123,6 @@ class ProxyClient
                     $id = $this->sockResourceToIntString($this->proxyTunnels[$localId]);
                     // 所有内网返回的数据需要找回 id，把 id 加到头部然后返回给代理服务器
                     $this->toExternals .= $id . $data;
-
-                    echo "to external: \n";
-                    echo $this->toExternals;
                 }
             } else if ($data === false) {
                 echo "socket_read() failed, reason: " .
@@ -150,7 +147,7 @@ class ProxyClient
             if (isset($this->requestTunnels[(int) $write]) && $this->requestTunnels[(int) $write] == $write) {
                 if (isset($this->toLocals[$id]) && !empty($this->toLocals[$id])) {
                     // 外网请求需要转发到内网
-                    echo "write to local {$id}\n";
+                    echo "write to local\n";
                     echo $this->toLocals[$id];
                     $res = socket_write($this->requestTunnels[(int)$write], $this->toLocals[$id]);
                     $this->onResult($res);
@@ -160,14 +157,13 @@ class ProxyClient
 
             if ($this->clientSocket == $write) {
                 if ($this->toExternals) {
-                    echo "write to external {$id}\n";
-                    echo $this->toExternals;
+                    echo "write to external\n";
                     // 内网返回需要返回给外网
                     $data = substr($this->toExternals, 0, $this->bytesLength + $this->identityLength);
+                    echo $data;
                     $res = socket_write($this->clientSocket, $data);
                     $this->toExternals = substr($this->toExternals, strlen($data));
                     $this->onResult($res);
-                    $this->toExternals = '';
                 }
             }
         }
