@@ -109,11 +109,13 @@ class ProxyClient
                     // 等下从 proxySocket 返回的时候，需要拼接上 id 通过与代理服务器的 socket 连接返回
                     $this->requestTunnels[(int) $proxySock] = $proxySock;
                     $this->proxyTunnels[(int) $proxySock] = $id;
-                    // 外网请求
-                    if (!isset($this->toLocals[$id])) {
-                        $this->toLocals[$id] = '';
+
+                    // 外网请求 => 内网请求
+                    $localId = $this->sockResourceToIntString($proxySock);
+                    if (!isset($this->toLocals[$localId])) {
+                        $this->toLocals[$localId] = '';
                     }
-                    $this->toLocals[$id] .= $data;
+                    $this->toLocals[$localId] .= $data;
                 } else {
                     // 内网返回
                     $id = $this->sockResourceToIntString($this->proxyTunnels[(int) $read]);
