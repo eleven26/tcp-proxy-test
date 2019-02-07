@@ -184,7 +184,9 @@ class ProxyServer
     protected function handleWrite($writes)
     {
         foreach ($writes as $write) {
+            echo "writing...\n";
             if (isset($this->toLocals[(int) $write]) && !empty($this->toLocals[(int) $write])) {
+                echo "writing to local...\n";
                 // 外网请求需要转发到内网
                 $data = substr($this->toLocals[(int) $write], 0, $this->bytesLength + $this->identityLength);
                 $res = socket_write($this->localSock, $data, strlen($data));
@@ -193,6 +195,7 @@ class ProxyServer
             }
 
             if (isset($this->toExternals[(int) $write]) && !empty($this->toExternals[(int) $write])) {
+                echo "writing to external...\n";
                 // 内网返回需要返回给外网
                 $res = socket_write($this->externalSocks[(int) $write], $this->toExternals[(int) $write]);
                 $this->onResult($res);
