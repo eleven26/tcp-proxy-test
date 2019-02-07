@@ -129,7 +129,7 @@ class ProxyServer
                     echo "receive data from: $ip:$port" . PHP_EOL;
                     echo $data;
 
-                    if ($ip != '127.0.0.1') {
+                    if ((int) $read == (int) $this->localSock) {
                         // e.g. 00000000 00000000 00000011
                         $id = $this->getResourceId($data);
                         // 内网返回
