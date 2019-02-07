@@ -31,9 +31,9 @@ class ProxyClient
     /**
      * 外网请求返回数据
      *
-     * @var array
+     * @var string
      */
-    private $toExternals = [];
+    private $toExternals = '';
 
     /**
      * @var array
@@ -103,8 +103,8 @@ class ProxyClient
 
                     // 创建到内网 http 服务的 socket 连接
                     $proxySock = $this->createClientSocket('127.0.0.1', 8005);
-                    $this->readSocks[(int) $proxySock] = $proxySock;
-                    $this->writeSocks[(int) $proxySock] = $proxySock;
+                    $this->readSocks[] = $proxySock;
+                    $this->writeSocks[] = $proxySock;
 
                     // 等下从 proxySocket 返回的时候，需要拼接上 id 通过与代理服务器的 socket 连接返回
                     $this->requestTunnels[(int) $proxySock] = $proxySock;
@@ -118,9 +118,14 @@ class ProxyClient
                     $this->toLocals[$localId] .= $data;
                 } else {
                     // 内网返回
-                    $id = $this->sockResourceToIntString($this->proxyTunnels[(int) $read]);
+                    // e.g. 00000000 00000000 00000011
+                    $localId = $this->sockResourceToIntString($read);
+                    $id = $this->sockResourceToIntString($this->proxyTunnels[$localId]);
                     // 所有内网返回的数据需要找回 id，把 id 加到头部然后返回给代理服务器
-                    $this->toExternals[$id] .= $id . $data;
+                    $this->toExternals .= $id . $data;
+
+                    echo "to external: \n";
+                    echo $this->toExternals;
                 }
             } else if ($data === false) {
                 echo "socket_read() failed, reason: " .
@@ -142,24 +147,28 @@ class ProxyClient
         foreach ($writes as $write) {
             $id = $this->sockResourceToIntString($write);
 
-            if (isset($this->toLocals[$id]) && !empty($this->toLocals[$id])) {
-                // 外网请求需要转发到内网
-                echo "write to local {$id}\n";
-                echo $this->toLocals[$id];
-                $res = socket_write($this->requestTunnels[(int) $write], $this->toLocals[$id]);
-                $this->onResult($res);
-                unset($this->toLocals[$id]);
+            if (isset($this->requestTunnels[(int) $write]) && $this->requestTunnels[(int) $write] == $write) {
+                if (isset($this->toLocals[$id]) && !empty($this->toLocals[$id])) {
+                    // 外网请求需要转发到内网
+                    echo "write to local {$id}\n";
+                    echo $this->toLocals[$id];
+                    $res = socket_write($this->requestTunnels[(int)$write], $this->toLocals[$id]);
+                    $this->onResult($res);
+                    unset($this->toLocals[$id]);
+                }
             }
 
-            if (isset($this->toExternals[$id]) && !empty($this->toExternals[$id])) {
-                echo "write to external {$id}\n";
-                echo $this->toExternals[$id];
-                // 内网返回需要返回给外网
-                $data = substr($this->toExternals[$id], 0, $this->bytesLength + $this->identityLength);
-                $res = socket_write($this->clientSocket, $data);
-                $this->toExternals[$id] = substr($this->toExternals[$id], strlen($data));
-                $this->onResult($res);
-                unset($this->toExternals[$id]);
+            if ($this->clientSocket == $write) {
+                if ($this->toExternals) {
+                    echo "write to external {$id}\n";
+                    echo $this->toExternals;
+                    // 内网返回需要返回给外网
+                    $data = substr($this->toExternals, 0, $this->bytesLength + $this->identityLength);
+                    $res = socket_write($this->clientSocket, $data);
+                    $this->toExternals = substr($this->toExternals, strlen($data));
+                    $this->onResult($res);
+                    $this->toExternals = '';
+                }
             }
         }
     }
@@ -185,7 +194,7 @@ class ProxyClient
         $this->clientSocket = $socket;
 
         $this->readSocks[] = $this->clientSocket;
-//        $this->writeSocks[] = $this->clientSocket;
+        $this->writeSocks[] = $this->clientSocket;
 
         return $socket;
     }
