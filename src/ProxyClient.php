@@ -110,10 +110,13 @@ class ProxyClient
                     $this->requestTunnels[(int) $proxySock] = $proxySock;
                     $this->proxyTunnels[(int) $proxySock] = $id;
                     // 外网请求
+                    if (!isset($this->toLocals[(int) $proxySock])) {
+                        $this->toLocals[(int) $proxySock] = '';
+                    }
                     $this->toLocals[(int) $proxySock] .= $data;
                 } else {
-                    $id = $this->sockResourceToIntString($read);
                     // 内网返回
+                    $id = $this->sockResourceToIntString($this->proxyTunnels[(int) $read]);
                     // 所有内网返回的数据需要找回 id，把 id 加到头部然后返回给代理服务器
                     $this->toExternals[$id] .= $id . $data;
                 }
