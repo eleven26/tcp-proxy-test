@@ -167,8 +167,8 @@ class ProxyServer
             echo "client connect server: ip=$ip, port=$port" . PHP_EOL;
 
             // 把新的连接 socket 加入监听
-            $read_socks[(int) $conn_sock] = $conn_sock;
-            $write_socks[(int) $conn_sock] = $conn_sock;
+            $this->readSocks[(int) $conn_sock] = $conn_sock;
+            $this->writeSocks[(int) $conn_sock] = $conn_sock;
 
             if (!$this->localSock) {
                 echo 'local connected!' . PHP_EOL;
