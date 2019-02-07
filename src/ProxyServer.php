@@ -213,13 +213,16 @@ class ProxyServer
 
     public function __destruct()
     {
-        socket_close($this->serverSock);
+        if (is_resource($this->serverSock))
+            socket_close($this->serverSock);
 
         foreach ($this->writeSocks as $writeSock) {
-            socket_close($writeSock);
+            if (is_resource($writeSock))
+                socket_close($writeSock);
         }
         foreach ($this->readSocks as $readSock) {
-            socket_close($readSock);
+            if (is_resource($readSock))
+                socket_close($readSock);
         }
     }
 }
