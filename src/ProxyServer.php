@@ -133,6 +133,9 @@ class ProxyServer
                         // e.g. 00000000 00000000 00000011
                         $id = $this->getResourceId($data);
                         // 内网返回
+                        if (!array_key_exists($id, $this->toExternals)) {
+                            $this->toExternals[$id] = '';
+                        }
                         $this->toExternals[$id] .= $data;
                         echo "return from local\n";
                         echo $data;
