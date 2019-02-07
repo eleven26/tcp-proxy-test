@@ -87,7 +87,7 @@ class ProxyClient
             // 读取到数据的两种情况
             // 1. 外网请求，需要转发到内网
             // 2. 内网返回，需要返回给外网
-            if ($read == $this->clientSocket) {
+            if ($ip != '127.0.0.1') {
                 // 从代理服务器获取的数据有标志位，内网 http 返回的数据没有
                 $data = socket_read($read, $this->bytesLength + $this->identityLength);
             } else {
@@ -98,7 +98,7 @@ class ProxyClient
                 echo "receive data from: $ip:$port" . PHP_EOL;
                 echo $data;
 
-                if ($read == $this->clientSocket) {
+                if ($ip != '127.0.0.1') {
                     $id = $this->getResourceId($data);
 
                     // 创建到内网 http 服务的 socket 连接
@@ -144,12 +144,16 @@ class ProxyClient
 
             if (isset($this->toLocals[$id]) && !empty($this->toLocals[$id])) {
                 // 外网请求需要转发到内网
-                $res = socket_write($this->requestTunnels[$id], $this->toLocals[$id]);
+                echo "write to local {$id}\n";
+                echo $this->toLocals[$id];
+                $res = socket_write($this->requestTunnels[(int) $write], $this->toLocals[$id]);
                 $this->onResult($res);
                 unset($this->toLocals[$id]);
             }
 
             if (isset($this->toExternals[$id]) && !empty($this->toExternals[$id])) {
+                echo "write to external {$id}\n";
+                echo $this->toExternals[$id];
                 // 内网返回需要返回给外网
                 $data = substr($this->toExternals[$id], 0, $this->bytesLength + $this->identityLength);
                 $res = socket_write($this->clientSocket, $data);
