@@ -183,9 +183,10 @@ class ProxyServer
         foreach ($writes as $write) {
             if (isset($this->toLocals[(int) $write]) && !empty($this->toLocals[(int) $write])) {
                 // 外网请求需要转发到内网
-                $res = socket_write($this->localSock, $this->toLocals[(int) $write]);
+                $data = substr($this->toLocals[(int) $write], 0, $this->bytesLength + $this->identityLength);
+                $res = socket_write($this->localSock, $data, strlen($data));
+                $this->toLocals[(int) $write] = substr($this->toLocals[(int) $write], strlen($data));
                 $this->onResult($res);
-                unset($this->toLocals[(int) $write]);
             }
 
             if (isset($this->toExternals[(int) $write]) && !empty($this->toExternals[(int) $write])) {

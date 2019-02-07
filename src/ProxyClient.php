@@ -6,20 +6,50 @@ class ProxyClient
 {
     use ProxyProtocol;
 
+    /**
+     * @var string 代理服务器地址
+     */
     private $host = 'ide.baiguiren.com';
 
+    /**
+     * @var int 代理服务器端口
+     */
     private $port = 8888;
 
+    /**
+     * @var resource 代理服务器到内网的连接
+     */
     private $clientSocket;
 
+    /**
+     * 接收到的外网请求数据
+     *
+     * @var array
+     */
     private $toLocals = [];
 
+    /**
+     * 外网请求返回数据
+     *
+     * @var array
+     */
     private $toExternals = [];
 
+    /**
+     * @var array
+     */
     private $proxyTunnels = [];
 
+    /**
+     * 内网 socket 客户端到内网 http 服务的 socket 连接
+     *
+     * @var array
+     */
     private $requestTunnels = [];
 
+    /**
+     * ProxyClient constructor.
+     */
     public function __construct()
     {
         $this->boot();
@@ -44,6 +74,9 @@ class ProxyClient
 
     protected function handleRead($reads)
     {
+        // socket 可读的情况
+        // 1. 内网 http 服务请求返回
+        // 2. 外网请求数据到来 （$this->clientSocket）
         foreach ($reads as $read) {
             $res = socket_getpeername($read, $ip, $port);
             if ($res === false) {
@@ -111,7 +144,9 @@ class ProxyClient
 
             if (isset($this->toExternals[(int) $write]) && !empty($this->toExternals[(int) $write])) {
                 // 内网返回需要返回给外网
-                $res = socket_write($this->proxyTunnels[(int) $write], $this->toExternals[(int) $write]);
+                $data = substr($this->toExternals[(int) $write], 0, $this->bytesLength + $this->identityLength);
+                $res = socket_write($this->clientSocket, $data);
+                $this->toExternals[(int) $write] = substr($this->toExternals[(int) $write], strlen($data));
                 $this->onResult($res);
                 unset($this->toExternals[(int) $write]);
             }
