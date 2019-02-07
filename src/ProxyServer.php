@@ -97,7 +97,9 @@ class ProxyServer
             $tmpReads = $this->readSocks;
             $tmpWrites = $this->writeSocks;
 
-            $this->select($tmpReads, $tmpWrites);
+            echo "before select...\n";
+            $num = $this->select($tmpReads, $tmpWrites);
+            echo "after select... res=$num\n";
             if ($tmpReads) {
                 $this->handleRead($tmpReads);
             }
@@ -123,7 +125,9 @@ class ProxyServer
                 // 读取到数据的几种情况
                 // 1. 外网请求，需要转发到内网
                 // 2. 内网返回，需要返回给外网
+                echo "before read...\n";
                 $data = socket_read($read, $this->bytesLength + $this->identityLength);
+                echo "after read...\n";
 
                 if ($data !== '') {
                     echo "receive data from: $ip:$port" . PHP_EOL;
