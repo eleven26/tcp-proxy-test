@@ -174,7 +174,7 @@ class ProxyClient
         $this->clientSocket = $socket;
 
         $this->readSocks[] = $this->clientSocket;
-        $this->writeSocks[] = $this->clientSocket;
+//        $this->writeSocks[] = $this->clientSocket;
 
         return $socket;
     }
