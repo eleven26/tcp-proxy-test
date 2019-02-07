@@ -136,6 +136,9 @@ class ProxyServer
                     } else {
                         $id = $this->sockResourceToIntString($read);
                         // 外网请求
+                        if (!array_key_exists($id, $this->toLocals)) {
+                            $this->toLocals[$id] = '';
+                        }
                         $this->toLocals[$id] .= $id . $data;
                     }
                 } else if ($data === false) {
