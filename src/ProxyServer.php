@@ -139,7 +139,7 @@ class ProxyServer
                         if (!array_key_exists($id, $this->toLocals)) {
                             $this->toLocals[$id] = '';
                         }
-                        $this->toLocals[$id] .= $id . $data;
+                        $this->toLocals[(int) $read] .= $id . $data;
                     }
                 } else if ($data === false) {
                     echo "socket_read() failed, reason: " .
@@ -184,7 +184,6 @@ class ProxyServer
     protected function handleWrite($writes)
     {
         foreach ($writes as $write) {
-            echo "writing...\n";
             if (isset($this->toLocals[(int) $write]) && !empty($this->toLocals[(int) $write])) {
                 echo "writing to local...\n";
                 // 外网请求需要转发到内网
