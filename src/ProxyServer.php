@@ -93,6 +93,8 @@ class ProxyServer
     public function handle()
     {
         while (true) {
+            usleep(500);
+
             // 这两个数组会被改变, 所以用两个临时变量
             $tmpReads = $this->readSocks;
             $tmpWrites = $this->writeSocks;
