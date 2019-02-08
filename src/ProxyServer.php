@@ -111,7 +111,14 @@ class ProxyServer
 
     protected function handleRead($reads)
     {
+        static $outputs = [];
+
         foreach ($reads as $read) {
+            if (!isset($outputs[(int) $read])) {
+                echo "writing..." . ((int) $read) . PHP_EOL;
+                $outputs[(int) $read] = 1;
+            }
+
             if ($read == $this->serverSock) {
                 $this->newConnection($read);
             } else {
@@ -181,10 +188,10 @@ class ProxyServer
 
             // 先从内网启动服务
             if (!$this->localSock) {
-                echo 'local connected!' . PHP_EOL;
+                echo 'local connected! ' . ((int) $connSock) . PHP_EOL;
                 $this->localSock = $connSock;
             } else {
-                echo 'external connected!' . PHP_EOL;
+                echo 'external connected!' . ((int) $connSock) . PHP_EOL;
                 $this->externalSocks[$this->sockResourceToIntString($connSock)] = $connSock;
             }
         } else {
