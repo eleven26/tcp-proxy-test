@@ -164,6 +164,7 @@ class ProxyClient
                     $res = socket_write($this->clientSocket, $data);
                     $this->toExternals = substr($this->toExternals, strlen($data));
                     $this->onResult($res);
+                    var_dump($res);
                 }
             }
         }

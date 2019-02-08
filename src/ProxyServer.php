@@ -168,21 +168,22 @@ class ProxyServer
     private function newConnection($read)
     {
         // 有新的客户端连接请求
-        $conn_sock = socket_accept($read); // 响应客户端连接, 此时不会造成阻塞
-        if ($conn_sock) {
-            socket_getpeername($conn_sock, $ip, $port);
+        $connSock = socket_accept($read); // 响应客户端连接, 此时不会造成阻塞
+        if ($connSock) {
+            socket_getpeername($connSock, $ip, $port);
             echo "client connect server: ip=$ip, port=$port" . PHP_EOL;
 
             // 把新的连接 socket 加入监听
-            $this->readSocks[(int) $conn_sock] = $conn_sock;
-            $this->writeSocks[(int) $conn_sock] = $conn_sock;
+            $this->readSocks[(int) $connSock] = $connSock;
+            $this->writeSocks[(int) $connSock] = $connSock;
 
+            // 先从内网启动服务
             if (!$this->localSock) {
                 echo 'local connected!' . PHP_EOL;
-                $this->localSock = $conn_sock;
+                $this->localSock = $connSock;
             } else {
                 echo 'external connected!' . PHP_EOL;
-                $this->externalSocks[(int) $conn_sock] = $conn_sock;
+                $this->externalSocks[$this->sockResourceToIntString($connSock)] = $connSock;
             }
         } else {
             echo "client connect failed!" . PHP_EOL;
@@ -203,12 +204,14 @@ class ProxyServer
                 $this->onResult($res);
             }
 
-            if (isset($this->toExternals[$id]) && !empty($this->toExternals[$id])) {
-                echo "writing to external...\n";
-                // 内网返回需要返回给外网
-                $res = socket_write($this->externalSocks[$id], $this->toExternals[$id]);
-                $this->onResult($res);
-                unset($this->toExternals[$id]);
+            if ($this->externalSocks[$id] == $write) {
+                if (isset($this->toExternals[$id]) && !empty($this->toExternals[$id])) {
+                    echo "writing to external...\n";
+                    // 内网返回需要返回给外网
+                    $res = socket_write($this->externalSocks[$id], $this->toExternals[$id]);
+                    $this->onResult($res);
+                    unset($this->toExternals[$id]);
+                }
             }
         }
     }
