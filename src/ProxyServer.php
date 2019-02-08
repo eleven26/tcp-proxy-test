@@ -204,7 +204,7 @@ class ProxyServer
                 $this->onResult($res);
             }
 
-            if ($this->externalSocks[$id] == $write) {
+            if (isset($this->externalSocks[$id]) && $this->externalSocks[$id] == $write) {
                 if (isset($this->toExternals[$id]) && !empty($this->toExternals[$id])) {
                     echo "writing to external...\n";
                     // 内网返回需要返回给外网
