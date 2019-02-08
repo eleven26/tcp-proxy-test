@@ -155,6 +155,8 @@ class ProxyServer
                     echo "socket_read() failed, reason: " .
                         socket_strerror(socket_last_error()) . "\n";
                     $this->removeExternalSock($read);
+                } else {
+                    var_dump($data);
                 }
             }
         }
