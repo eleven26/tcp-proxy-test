@@ -3,6 +3,9 @@
 ### 概念
 * 内网穿透: 通俗地讲，就是让外网访问内网
 
+### 整体架构
+![architecture.png](https://github.com/eleven26/tcp-proxy-test/tree/master/imgs/architecture.png)
+
 ### 前提条件
 * 有一个公网服务器，作为中转使用
 
