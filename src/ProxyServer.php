@@ -141,6 +141,7 @@ class ProxyServer
                     if ((int) $read == (int) $this->localSock) {
                         // e.g. 00000000 00000000 00000011
                         $id = $this->getResourceId($data);
+                        $id = decbin($id);
                         // 内网返回
                         if (!array_key_exists($id, $this->toExternals)) {
                             $this->toExternals[$id] = '';
