@@ -12,6 +12,10 @@ trait ProxyProtocol
      */
     private $bytesLength = 1000;
 
+    private $tmpReads;
+
+    private $tmpWrites;
+
     /**
      * @var array socket_select socket to read
      */
@@ -111,15 +115,30 @@ trait ProxyProtocol
      */
     protected function removeSock($sock)
     {
-        foreach ($this->readSocks as $readSock) {
+        foreach ($this->tmpReads as $key => $readSock) {
             if ($readSock === $sock) {
                 socket_close($sock);
+                unset($this->tmpReads[$key]);
             }
         }
 
-        foreach ($this->writeSocks as $writeSock) {
+        foreach ($this->tmpWrites as $key => $writeSock) {
             if ($writeSock === $sock) {
                 socket_close($sock);
+                unset($this->tmpWrites[$key]);
+            }
+        }
+
+        foreach ($this->readSocks as $key => $readSock) {
+            if ($readSock === $sock) {
+                socket_close($sock);
+                unset($this->readSocks[$key]);
+            }
+        }
+        foreach ($this->writeSocks as $key => $writeSock) {
+            if ($writeSock === $sock) {
+                socket_close($sock);
+                unset($this->writeSocks[$key]);
             }
         }
 

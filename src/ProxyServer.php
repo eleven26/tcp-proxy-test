@@ -85,15 +85,15 @@ class ProxyServer
             usleep(500);
 
             // 这两个数组会被改变, 所以用两个临时变量
-            $tmpReads = $this->readSocks;
-            $tmpWrites = $this->writeSocks;
+            $this->tmpReads = $this->readSocks;
+            $this->tmpWrites = $this->writeSocks;
 
-            $this->select($tmpReads, $tmpWrites);
-            if ($tmpReads) {
-                $this->handleRead($tmpReads);
+            $this->select($this->tmpReads, $this->tmpWrites);
+            if ($this->tmpReads) {
+                $this->handleRead($this->tmpReads);
             }
-            if ($tmpWrites) {
-                $this->handleWrite($tmpWrites);
+            if ($this->tmpWrites) {
+                $this->handleWrite($this->tmpWrites);
             }
         }
     }
