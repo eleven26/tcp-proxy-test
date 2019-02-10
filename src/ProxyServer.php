@@ -104,6 +104,11 @@ class ProxyServer
             if ($read == $this->serverSock) {
                 $this->newConnection($read);
             } else {
+                if (!is_resource($read)) {
+                    $this->removeSock($read);
+                    continue;
+                }
+
                 $res = socket_getpeername($read, $ip, $port);
                 if ($res === false) {
                     echo "getpeername fails." . PHP_EOL;
