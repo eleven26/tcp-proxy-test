@@ -28,6 +28,24 @@ trait ProxyProtocol
     private $except = null;
 
     /**
+     * 内网 socket 客户端到内网 http 服务的 socket 连接
+     *
+     * @var array
+     */
+    private $requestTunnels = [];
+
+    /**
+     * 代理服务器与外网浏览器 socket 连接
+     * 格式：
+     * [
+     *      '<socket resource id>' => '<socket resource>'
+     * ]
+     *
+     * @var array
+     */
+    private $externalSocks = [];
+
+    /**
      * 根据自定义报文获取关联的 resource id
      *
      * @param string $data 报文字符串
@@ -84,5 +102,28 @@ trait ProxyProtocol
         }
 
         return $res;
+    }
+
+    /**
+     * 把 socket 资源从 socket_select 列表移除
+     *
+     * @param resource $sock
+     */
+    protected function removeSock($sock)
+    {
+        foreach ($this->readSocks as $readSock) {
+            if ($readSock === $sock) {
+                socket_close($sock);
+            }
+        }
+
+        foreach ($this->writeSocks as $writeSock) {
+            if ($writeSock === $sock) {
+                socket_close($sock);
+            }
+        }
+
+        unset($this->requestTunnels[(int) $sock]);
+        unset($this->externalSocks[(int) $sock]);
     }
 }

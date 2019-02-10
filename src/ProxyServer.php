@@ -39,17 +39,6 @@ class ProxyServer
     private $toExternals = [];
 
     /**
-     * 代理服务器与外网浏览器 socket 连接
-     * 格式：
-     * [
-     *      '<socket resource id>' => '<socket resource>'
-     * ]
-     *
-     * @var array
-     */
-    private $externalSocks = [];
-
-    /**
      * ProxyServer constructor.
      */
     public function __construct()
@@ -111,21 +100,14 @@ class ProxyServer
 
     protected function handleRead($reads)
     {
-        static $outputs = [];
-
         foreach ($reads as $read) {
-            if (!isset($outputs[(int) $read])) {
-                echo "writing..." . ((int) $read) . PHP_EOL;
-                $outputs[(int) $read] = 1;
-            }
-
             if ($read == $this->serverSock) {
                 $this->newConnection($read);
             } else {
                 $res = socket_getpeername($read, $ip, $port);
                 if ($res === false) {
                     echo "getpeername fails." . PHP_EOL;
-                    $this->removeExternalSock($read);
+                    $this->removeSock($read);
                     continue;
                 }
 
@@ -161,17 +143,10 @@ class ProxyServer
                 } else if ($data === false) {
                     echo "socket_read() failed, reason: " .
                         socket_strerror(socket_last_error()) . "\n";
-                    $this->removeExternalSock($read);
+                    $this->removeSock($read);
                 }
             }
         }
-    }
-
-    private function removeExternalSock($sock)
-    {
-        echo "client close: "  . ((int) $sock) . PHP_EOL;
-        unset($this->externalSocks[(int) $sock]);
-        socket_close($sock);
     }
 
     private function newConnection($read)

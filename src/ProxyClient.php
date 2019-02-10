@@ -41,13 +41,6 @@ class ProxyClient
     private $proxyTunnels = [];
 
     /**
-     * 内网 socket 客户端到内网 http 服务的 socket 连接
-     *
-     * @var array
-     */
-    private $requestTunnels = [];
-
-    /**
      * ProxyClient constructor.
      */
     public function __construct()
@@ -80,9 +73,14 @@ class ProxyClient
         // 1. 内网 http 服务请求返回
         // 2. 外网请求数据到来 （$this->clientSocket）
         foreach ($reads as $read) {
+            if (!is_resource($read)) {
+                $this->removeSock($read);
+                continue;
+            }
+
             $res = socket_getpeername($read, $ip, $port);
             if ($res === false) {
-                $this->removeInvalidTunnels($read);
+                $this->removeSock($read);
                 continue;
             }
 
@@ -129,16 +127,9 @@ class ProxyClient
             } else if ($data === false) {
                 echo "socket_read() failed, reason: " .
                     socket_strerror(socket_last_error()) . "\n";
-                $this->removeInvalidTunnels($read);
+                $this->removeSock($read);
             }
         }
-    }
-
-    private function removeInvalidTunnels($sock)
-    {
-        echo "client close: "  . ((int) $sock) . PHP_EOL;
-        unset($this->requestTunnels[(int) $sock]);
-        socket_close($sock);
     }
 
     protected function handleWrite($writes)
