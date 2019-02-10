@@ -42,6 +42,20 @@ trait ProxyProtocol
     }
 
     /**
+     * 根据自定义报文获取关联的 resource id 字符串
+     *
+     * @param string $data 报文字符串
+     * @return int
+     */
+    private function getResourceIdStr(&$data)
+    {
+        $identify = substr($data, 0, $this->identityLength);
+        $data = substr($data, $this->identityLength);
+
+        return $identify;
+    }
+
+    /**
      * 标志位（socket resource 转整型后再转二进制，使用4个字节保存，填充前导0）
      *
      * @param resource $sock
