@@ -157,7 +157,7 @@ class ProxyClient
                 }
             }
 
-            if ($this->clientSocket == $write) {
+            if ($this->clientSocket === $write) {
                 if ($this->toExternals) {
                     echo "write to external\n";
                     // 内网返回需要返回给外网
@@ -190,7 +190,8 @@ class ProxyClient
         $socket or die('create socket fails.' . PHP_EOL);
         socket_connect($socket, $serverIp, $port) or die('connect fails.' . PHP_EOL);
 
-        $this->clientSocket = $socket;
+        if (!$this->clientSocket)
+            $this->clientSocket = $socket;
 
         $this->readSocks[] = $this->clientSocket;
         $this->writeSocks[] = $this->clientSocket;
