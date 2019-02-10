@@ -213,13 +213,15 @@ class ProxyServer
                 $this->onResult($res);
             }
 
-            if (isset($this->externalSocks[$id]) && $this->externalSocks[$id] == $write) {
+            if (isset($this->externalSocks[$id]) && $this->externalSocks[$id] === $write) {
                 if (isset($this->toExternals[$id]) && !empty($this->toExternals[$id])) {
                     echo "writing to external...\n";
+                    socket_getpeername($this->externalSocks[$id], $ip, $port);
+                    echo "write to {$ip}:{$port}\n";
                     // 内网返回需要返回给外网
                     $res = socket_write($this->externalSocks[$id], $this->toExternals[$id]);
                     $this->onResult($res);
-                    unset($this->toExternals[$id]);
+                    $this->toExternals[$id] = substr($this->toExternals[$id], $res);
                 }
             }
         }
