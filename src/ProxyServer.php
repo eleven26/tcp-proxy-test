@@ -202,6 +202,9 @@ class ProxyServer
                     $res = socket_write($this->externalSocks[$id], $this->toExternals[$id]);
                     $this->onResult($res);
                     $this->toExternals[$id] = substr($this->toExternals[$id], $res);
+
+                    $this->removeSock($write);
+                    $this->removeSock($key);
                 }
             }
         }
