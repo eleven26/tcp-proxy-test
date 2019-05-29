@@ -99,6 +99,17 @@ trait ProxyProtocol
      */
     protected function select(&$reads, &$writes)
     {
+        foreach ($reads as $key => $read) {
+            if (!is_resource($read)) {
+                unset($reads[$key]);
+            }
+        }
+        foreach ($writes as $key => $write) {
+            if (!is_resource($write)) {
+                unset($writes[$key]);
+            }
+        }
+
         $res = socket_select($reads, $writes, $this->except, null);
         if (false === $res) {
             echo "socket_select() failed, reason: " . socket_strerror(socket_last_error()) . PHP_EOL;
