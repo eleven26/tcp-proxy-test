@@ -204,7 +204,9 @@ class ProxyServer
                     $this->toExternals[$id] = substr($this->toExternals[$id], $res);
 
                     socket_close($this->toExternals[$id]);
+                    unset($this->toExternals[$id]);
                     socket_close($this->externalSocks[$id]);
+                    unset($this->externalSocks[$id]);
                 }
             }
         }
