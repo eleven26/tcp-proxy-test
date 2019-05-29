@@ -115,6 +115,12 @@ trait ProxyProtocol
      */
     protected function removeSock($sock)
     {
+        if (!is_resource($sock)) {
+            unset($this->requestTunnels[(int) $sock]);
+            unset($this->externalSocks[(int) $sock]);
+            return;
+        }
+
         foreach ($this->tmpReads as $key => $readSock) {
             if ($readSock === $sock) {
                 socket_close($sock);
