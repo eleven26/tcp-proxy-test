@@ -181,7 +181,7 @@ class ProxyServer
 
     protected function handleWrite($writes)
     {
-        foreach ($writes as $write) {
+        foreach ($writes as $key => $write) {
             $id = $this->sockResourceToIntString($write);
 
             if (isset($this->toLocals[$id]) && !empty($this->toLocals[$id])) {
@@ -207,6 +207,8 @@ class ProxyServer
                     unset($this->toExternals[$id]);
                     socket_close($this->externalSocks[$id]);
                     unset($this->externalSocks[$id]);
+                    socket_close($write);
+                    unset($writes[$key]);
                 }
             }
         }
