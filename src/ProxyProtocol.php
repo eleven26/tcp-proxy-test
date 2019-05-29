@@ -134,27 +134,27 @@ trait ProxyProtocol
 
         foreach ($this->tmpReads as $key => $readSock) {
             if ($readSock === $sock) {
-                socket_close($sock);
+                if (is_resource($sock)) socket_close($sock);
                 unset($this->tmpReads[$key]);
             }
         }
 
         foreach ($this->tmpWrites as $key => $writeSock) {
             if ($writeSock === $sock) {
-                socket_close($sock);
+                if (is_resource($sock)) socket_close($sock);
                 unset($this->tmpWrites[$key]);
             }
         }
 
         foreach ($this->readSocks as $key => $readSock) {
             if ($readSock === $sock) {
-                socket_close($sock);
+                if (is_resource($sock)) socket_close($sock);
                 unset($this->readSocks[$key]);
             }
         }
         foreach ($this->writeSocks as $key => $writeSock) {
             if ($writeSock === $sock) {
-                socket_close($sock);
+                if (is_resource($sock)) socket_close($sock);
                 unset($this->writeSocks[$key]);
             }
         }
