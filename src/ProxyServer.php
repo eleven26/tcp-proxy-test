@@ -208,8 +208,8 @@ class ProxyServer
                     socket_close($this->externalSocks[$id]);
                     unset($this->externalSocks[$id]);
                     socket_close($write);
-                    unset($writes[$key]);
-                    unset($this->writeSocks[$id]);
+                    unset($writes[(int)$id]);
+                    unset($this->writeSocks[(int)$id]);
                 }
             }
         }
