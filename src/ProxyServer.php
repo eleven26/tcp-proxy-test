@@ -62,6 +62,12 @@ class ProxyServer
             exit(-1);
         }
 
+        if (!socket_set_option($server_sock, SOL_SOCKET, SO_REUSEADDR, 1)) {
+            $error_code = socket_last_error();
+            fwrite(STDERR, "socket set option fail: " . socket_strerror($error_code));
+            exit(-1);
+        }
+
         // 绑定 ip 地址及端口
         if (!socket_bind($server_sock, '0.0.0.0', 8888)) {
             $error_code = socket_last_error();
